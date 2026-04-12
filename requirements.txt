@@ -1,0 +1,6 @@
+anthropic==0.49.0
+google-api-python-client==2.118.0
+newsapi-python==0.2.7
+python-dotenv==1.0.1
+groq==0.25.0
+feedparser==6.0.11
