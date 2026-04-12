@@ -51,17 +51,14 @@ def build_email_html(
     """Builds the full HTML email digest."""
 
     date_str = datetime.now().strftime("%B %d, %Y")
-
-    # Count total items
     total = len(videos) + len(articles) + len(blogs) + len(papers)
 
     sections = ""
-    sections += build_section("Top AI Videos",
-                              "📺", "#FF0000", videos,   is_video=True)
-    sections += build_section("Top AI News",
-                              "📰", "#0057ff", articles)
-    sections += build_section("AI Lab Blog Posts",      "🏢", "#6200ea", blogs)
-    sections += build_section("Research Papers",        "📄", "#00897b", papers)
+    sections += build_section("Top AI Videos",    "📺",
+                              "#FF0000", videos,   is_video=True)
+    sections += build_section("Top AI News",       "📰", "#0057ff", articles)
+    sections += build_section("AI Lab Blog Posts", "🏢", "#6200ea", blogs)
+    sections += build_section("Research Papers",   "📄", "#00897b", papers)
 
     html = f"""
     <html>
@@ -97,7 +94,7 @@ def send_digest(
     blogs: list[dict] = None,
     papers: list[dict] = None,
 ) -> None:
-    """Sends the full AI digest email via Gmail SMTP."""
+    """Sends the full AI digest email via Gmail SMTP to one or more recipients."""
 
     blogs = blogs or []
     papers = papers or []
@@ -106,20 +103,26 @@ def send_digest(
         print("[Email] Nothing to send — no items passed the filter.")
         return
 
+    # Support multiple recipients separated by commas
+    recipients = [email.strip() for email in RECIPIENT_EMAIL.split(",")]
+
     msg = MIMEMultipart("alternative")
     msg["Subject"] = f"🤖 Your AI Digest — {datetime.now().strftime('%B %d, %Y')}"
     msg["From"] = GMAIL_ADDRESS
-    msg["To"] = RECIPIENT_EMAIL
+    msg["To"] = ", ".join(recipients)
 
     html_content = build_email_html(videos, articles, blogs, papers)
     msg.attach(MIMEText(html_content, "html"))
 
-    print("[Email] Connecting to Gmail...")
+    print(f"[Email] Connecting to Gmail...")
+    print(
+        f"[Email] Sending to {len(recipients)} recipient(s): {', '.join(recipients)}")
+
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
-        server.sendmail(GMAIL_ADDRESS, RECIPIENT_EMAIL, msg.as_string())
+        server.sendmail(GMAIL_ADDRESS, recipients, msg.as_string())
 
-    print(f"[Email] ✅ Digest sent to {RECIPIENT_EMAIL}!")
+    print(f"[Email] ✅ Digest sent successfully!")
 
 
 # ─── Quick test ─────────────────────────────────────────────────────
