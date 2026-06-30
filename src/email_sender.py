@@ -25,7 +25,7 @@ def build_section(title: str, emoji: str, color: str, items: list[dict], is_vide
             </a>
             <p style="margin:6px 0 0; color:#555; font-size:12px;">
                 {item.get('channel') or item.get('source', '')}
-                &nbsp;·&nbsp; {extra}⭐ {item['score']}/10
+                &nbsp;·&nbsp; {extra}{"⭐ " + str(item['score']) + "/10" if 'score' in item else ""}
             </p>
             <p style="margin:6px 0 0; color:#777; font-size:12px;">
                 {item.get('description', '')}
@@ -44,6 +44,7 @@ def build_section(title: str, emoji: str, color: str, items: list[dict], is_vide
 
 def build_email_html(
     videos: list[dict],
+    favorites: list[dict],
     articles: list[dict],
     blogs: list[dict],
     papers: list[dict],
@@ -51,14 +52,14 @@ def build_email_html(
     """Builds the full HTML email digest."""
 
     date_str = datetime.now().strftime("%B %d, %Y")
-    total = len(videos) + len(articles) + len(blogs) + len(papers)
+    total = len(videos) + len(favorites) + len(articles) + len(blogs) + len(papers)
 
     sections = ""
-    sections += build_section("Top AI Videos",    "📺",
-                              "#FF0000", videos,   is_video=True)
+    sections += build_section("Top AI Videos",    "📺", "#FF0000", videos,    is_video=True)
     sections += build_section("Top AI News",       "📰", "#0057ff", articles)
     sections += build_section("AI Lab Blog Posts", "🏢", "#6200ea", blogs)
     sections += build_section("Research Papers",   "📄", "#00897b", papers)
+    sections += build_section("Your Favorites",   "⭐", "#f57c00", favorites, is_video=True)
 
     html = f"""
     <html>
@@ -90,6 +91,7 @@ def build_email_html(
 
 def send_digest(
     videos: list[dict],
+    favorites: list[dict],
     articles: list[dict],
     blogs: list[dict] = None,
     papers: list[dict] = None,
@@ -99,7 +101,7 @@ def send_digest(
     blogs = blogs or []
     papers = papers or []
 
-    if not any([videos, articles, blogs, papers]):
+    if not any([videos, favorites, articles, blogs, papers]):
         print("[Email] Nothing to send — no items passed the filter.")
         return
 
@@ -111,7 +113,7 @@ def send_digest(
     msg["From"] = GMAIL_ADDRESS
     msg["To"] = ", ".join(recipients)
 
-    html_content = build_email_html(videos, articles, blogs, papers)
+    html_content = build_email_html(videos, favorites, articles, blogs, papers)
     msg.attach(MIMEText(html_content, "html"))
 
     print(f"[Email] Connecting to Gmail...")

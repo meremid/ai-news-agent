@@ -10,12 +10,13 @@ Built with Python and powered by Claude AI (Anthropic), this agent fetches conte
 
 Every 3 days, the agent automatically:
 
-1. 📺 **Fetches YouTube videos** — searches for the latest AI videos, filters out Shorts and non-English content
-2. 📰 **Fetches news articles** — pulls from trusted publications like TechCrunch, The Verge, Wired, MIT Technology Review, and more
-3. 🏢 **Fetches AI lab blog posts** — monitors official blogs from Anthropic, OpenAI, Google DeepMind, Meta AI, Hugging Face, and Mistral
-4. 📄 **Fetches ArXiv research papers** — pulls the latest papers from cs.AI, cs.LG (Machine Learning), and cs.CL (NLP)
-5. 🧠 **Filters with Groq AI** — scores every item 1–10 for relevance and quality, keeping only the best (score ≥ 7)
-6. 📧 **Sends a digest email** — delivers a clean, formatted HTML email with all curated content
+1. 📺 **Fetches AI YouTube videos** — searches for the latest AI videos, filters out Shorts and non-English content
+2. ⭐ **Fetches your favorite channels** — pulls the latest non-Short videos from a curated list of channels (Johnny Harris, Veritasium, Cleo Abram, Kurzgesagt, Lex Fridman, TED, and more)
+3. 📰 **Fetches news articles** — pulls from trusted publications like TechCrunch, The Verge, Wired, MIT Technology Review, and more
+4. 🏢 **Fetches AI lab blog posts** — monitors official blogs from Anthropic, OpenAI, Google DeepMind, Meta AI, Hugging Face, and Mistral
+5. 📄 **Fetches ArXiv research papers** — pulls the latest papers from cs.AI, cs.LG (Machine Learning), and cs.CL (NLP)
+6. 🧠 **Filters with Groq AI** — scores every item 1–10 for relevance and quality; news/videos require ≥ 7, papers require ≥ 5 (top 5 shown)
+7. 📧 **Sends a digest email** — delivers a clean, formatted HTML email with all curated content
 
 ---
 
@@ -26,7 +27,7 @@ Every 3 days, the agent automatically:
 | **Python 3.11** | Core language |
 | **Claude AI (Anthropic)** | Assisted in building and designing this agent |
 | **Groq (llama-3.3-70b-versatile)** | AI relevance scoring and filtering |
-| **YouTube Data API v3** | Fetch latest AI videos |
+| **YouTube Data API v3** | Fetch latest AI videos and favorite channel videos |
 | **NewsAPI** | Fetch news from trusted publications |
 | **feedparser** | Parse RSS feeds from AI lab blogs |
 | **ArXiv API** | Fetch latest research papers |
@@ -44,10 +45,11 @@ ai-news-agent/
 ├── .env.example             ← Template for environment variables
 ├── .github/
 │   └── workflows/
-│       └── digest.yml       ← GitHub Actions scheduler
+│       ├── digest.yml       ← GitHub Actions scheduler (every 3 days)
+│       └── keepalive.yml    ← Prevents GitHub from disabling the schedule
 └── src/
     ├── config.py            ← Centralised settings and validation
-    ├── youtube_fetcher.py   ← Fetches and filters YouTube videos
+    ├── youtube_fetcher.py   ← Fetches AI videos + favorite channel videos
     ├── news_fetcher.py      ← Fetches news from trusted sources
     ├── blog_fetcher.py      ← Fetches official AI lab blog posts
     ├── arxiv_fetcher.py     ← Fetches ArXiv research papers
@@ -89,7 +91,7 @@ cp .env.example .env
 | `GROQ_API_KEY` | [console.groq.com](https://console.groq.com) | Free |
 | `GMAIL_ADDRESS` | Your Gmail address | Free |
 | `GMAIL_APP_PASSWORD` | [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords) | Free |
-| `RECIPIENT_EMAIL` | Where to receive the digest | Free |
+| `RECIPIENT_EMAIL` | Where to receive the digest (comma-separated for multiple) | Free |
 
 ### 4. Run the agent locally
 
@@ -116,11 +118,13 @@ To run the agent automatically every 3 days for free:
 
 You can also trigger it manually at any time from the **Actions** tab → **Run workflow**.
 
+> **Note:** GitHub automatically disables scheduled workflows after 60 days of repo inactivity. A separate `keepalive.yml` workflow runs on the 1st of every month and makes an empty commit to prevent this.
+
 ---
 
 ## 🧠 How the AI Filtering Works
 
-Every fetched item (video, article, blog post, or paper) is sent to Groq's `llama-3.3-70b-versatile` model with this scoring criteria:
+Every fetched item is sent to Groq's `llama-3.3-70b-versatile` model and scored 1–10 based on:
 
 - ✅ Relevance to AI, ML, or cutting-edge technology
 - ✅ Quality and credibility of the source or channel
@@ -128,13 +132,38 @@ Every fetched item (video, article, blog post, or paper) is sent to Groq's `llam
 - ✅ View count as a quality signal (for videos)
 - ❌ Penalises clickbait, entertainment, non-English content
 
-Only items scoring **7 or above out of 10** make it into the digest.
+| Content type | Minimum score | Max shown |
+|---|---|---|
+| Videos, News, Blog posts | 7 / 10 | unlimited |
+| Research papers | 5 / 10 | top 5 |
+
+Favorite channel videos bypass Groq entirely — they're always included if published in the last 3 days and are not Shorts.
+
+---
+
+## ⭐ Adding Favorite Channels
+
+To add or remove channels from the "Your Favorites" section, edit `FAVORITE_CHANNELS` in `src/youtube_fetcher.py`:
+
+```python
+FAVORITE_CHANNELS = [
+    "@johnnyharris",
+    "@veritasium",
+    "@cleoabram",
+    "@kurzgesagt",
+    "@LexFridman",
+    "@TED",
+    # add any @handle here
+]
+```
+
+The agent pulls their latest videos from the past 3 days, skipping Shorts automatically.
 
 ---
 
 ## 📧 Sample Email
 
-The digest email is divided into 4 sections:
+The digest email is divided into 5 sections:
 
 ```
 🤖 Your AI Digest — April 11, 2026
@@ -149,7 +178,10 @@ The digest email is divided into 4 sections:
    Claude 4.6 is now available — Anthropic (⭐ 9/10)
 
 📄 Research Papers
-   Attention Is All You Need — Revisited — ArXiv (⭐ 8/10)
+   Attention Is All You Need — Revisited — ArXiv (⭐ 7/10)
+
+⭐ Your Favorites
+   Why Every Map is Wrong — Veritasium (1,200,000 views)
 ```
 
 ---

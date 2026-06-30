@@ -30,7 +30,7 @@ def fetch_arxiv_papers() -> list[dict]:
     print(f"[ArXiv] Fetching from: {url[:80]}...")
 
     try:
-        with urllib.request.urlopen(url, timeout=20) as response:
+        with urllib.request.urlopen(url, timeout=45) as response:
             xml_data = response.read()
     except Exception as e:
         print(f"[ArXiv] ⚠️  Failed to fetch papers: {e}")
