@@ -11,10 +11,10 @@ Built with Python and powered by Claude AI (Anthropic), this agent fetches conte
 Every 3 days, the agent automatically:
 
 1. 📺 **Fetches AI YouTube videos** — searches for the latest AI videos, filters out Shorts and non-English content
-2. ⭐ **Fetches your favorite channels** — pulls the latest non-Short videos from a curated list of channels (Johnny Harris, Veritasium, Cleo Abram, Kurzgesagt, Lex Fridman, TED, and more)
-3. 📰 **Fetches news articles** — pulls from trusted publications like TechCrunch, The Verge, Wired, MIT Technology Review, and more
-4. 🏢 **Fetches AI lab blog posts** — monitors official blogs from Anthropic, OpenAI, Google DeepMind, Meta AI, Hugging Face, and Mistral
-5. 📄 **Fetches ArXiv research papers** — pulls the latest papers from cs.AI, cs.LG (Machine Learning), and cs.CL (NLP)
+2. 📰 **Fetches news articles** — pulls from trusted publications like TechCrunch, The Verge, Wired, MIT Technology Review, and more
+3. 🏢 **Fetches AI lab blog posts** — monitors official blogs from Anthropic, OpenAI, Google DeepMind, Meta AI, Hugging Face, and Mistral
+4. 📄 **Fetches ArXiv research papers** — pulls the latest papers from cs.AI, cs.LG (Machine Learning), and cs.CL (NLP)
+5. ⭐ **Fetches your favorite channels** — pulls the latest non-Short videos from a curated list of channels (Johnny Harris, Veritasium, Cleo Abram, Kurzgesagt, Lex Fridman, TED, and more)
 6. 🧠 **Filters with Groq AI** — scores every item 1–10 for relevance and quality; news/videos require ≥ 7, papers require ≥ 5 (top 5 shown)
 7. 📧 **Sends a digest email** — delivers a clean, formatted HTML email with all curated content
 
@@ -183,6 +183,8 @@ The digest email is divided into 5 sections:
 ⭐ Your Favorites
    Why Every Map is Wrong — Veritasium (1,200,000 views)
 ```
+
+> Favorites always appear at the end regardless of topic — they're included as long as they were published in the last 3 days and are not Shorts.
 
 ---
 
