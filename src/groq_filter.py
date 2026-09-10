@@ -47,10 +47,11 @@ Content to score:
 Respond ONLY with a single integer between 1 and 10. Nothing else."""
 
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="openai/gpt-oss-20b",
         messages=[{"role": "user", "content": prompt}],
-        max_tokens=5,
+        max_tokens=80,
         temperature=0,
+        reasoning_effort="low",
     )
 
     try:

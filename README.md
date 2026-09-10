@@ -26,7 +26,7 @@ Every 3 days, the agent automatically:
 |---|---|
 | **Python 3.11** | Core language |
 | **Claude AI (Anthropic)** | Assisted in building and designing this agent |
-| **Groq (llama-3.3-70b-versatile)** | AI relevance scoring and filtering |
+| **Groq (openai/gpt-oss-20b)** | AI relevance scoring and filtering |
 | **YouTube Data API v3** | Fetch latest AI videos and favorite channel videos |
 | **NewsAPI** | Fetch news from trusted publications |
 | **feedparser** | Parse RSS feeds from AI lab blogs |
@@ -124,7 +124,7 @@ You can also trigger it manually at any time from the **Actions** tab → **Run 
 
 ## 🧠 How the AI Filtering Works
 
-Every fetched item is sent to Groq's `llama-3.3-70b-versatile` model and scored 1–10 based on:
+Every fetched item is sent to Groq's `openai/gpt-oss-20b` model and scored 1–10 based on:
 
 - ✅ Relevance to AI, ML, or cutting-edge technology
 - ✅ Quality and credibility of the source or channel
